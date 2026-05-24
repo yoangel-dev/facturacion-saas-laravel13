@@ -1,58 +1,269 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🚀 Facturación SaaS Multi-Tenant (Laravel 13)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema SaaS multi-tenant desarrollado con Laravel 13 para la gestión de empresas, usuarios, clientes y facturación, con aislamiento completo de datos entre tenants y paneles independientes para administración global y usuarios empresariales.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+# ✨ Características principales
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* Multi-tenant real con aislamiento de datos
+* Gestión de múltiples empresas (tenants)
+* Gestión de usuarios y roles
+* Gestión de clientes
+* Sistema de facturación
+* Panel administrativo global
+* Panel independiente por tenant
+* Autenticación segura
+* Middleware multi-tenant
+* Arquitectura escalable y mantenible
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+# 🛠 Tecnologías utilizadas
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* PHP 8.2
+* Laravel 13
+* MySQL 8
+* Bootstrap 5
+* Blade
+* Eloquent ORM
+* Laravel Breeze (Blade)
+* Middleware Multi-Tenant
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+# 🏗 Arquitectura del sistema
 
-## Agentic Development
+## 👑 SuperAdmin
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+El SuperAdmin tiene acceso global al sistema:
 
-```bash
-composer require laravel/boost --dev
+* Gestión de tenants
+* Gestión de usuarios globales
+* Acceso al panel administrativo `/admin`
 
-php artisan boost:install
+---
+
+## 👥 Usuarios por Tenant
+
+Cada empresa administra sus propios recursos:
+
+* Gestión de clientes
+* Gestión de facturas
+* Acceso al panel `/panel`
+
+---
+
+# 🔐 Roles del sistema
+
+| Rol        | Descripción               |
+| ---------- | ------------------------- |
+| SuperAdmin | Control total del sistema |
+| Admin      | Administración del tenant |
+| Usuario    | Gestión operativa         |
+
+---
+
+# 🔒 Aislamiento de datos (Multi-Tenant)
+
+Cada usuario únicamente puede acceder a la información perteneciente a su empresa.
+
+Las consultas se filtran automáticamente mediante:
+
+```php
+where('tenant_id', auth()->user()->tenant_id)
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Esto garantiza un aislamiento total entre empresas.
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# 🔑 Autenticación
 
-## Code of Conduct
+Implementada con Laravel Breeze (Blade):
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+* Login personalizado
+* Redirección automática a `/panel`
+* Logout seguro
+* Gestión de roles desde base de datos
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 🗄 Base de datos
 
-## License
+## Tablas principales
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+* `tenants`
+* `users`
+* `clients`
+* `invoices`
+
+---
+
+## Relaciones
+
+* Un Tenant tiene muchos Usuarios
+* Un Tenant tiene muchos Clientes
+* Un Tenant tiene muchas Facturas
+* Un Usuario pertenece a un Tenant
+
+---
+
+# 📦 Instalación
+
+```bash
+git clone https://github.com/yoangel-dev/facturacion-saas-laravel13.git
+
+cd laravel-saas-multitenant
+
+composer install
+
+cp .env.example .env
+
+php artisan key:generate
+
+php artisan migrate --seed
+
+php artisan serve
+```
+
+---
+
+# 👤 Usuario de prueba
+
+| Tipo     | Credenciales             |
+| -------- | ------------------------ |
+| Email    | `superadmin@example.com` |
+| Password | `password`               |
+
+---
+
+# 🌐 Paneles del sistema
+
+| Panel                 | Ruta     |
+| --------------------- | -------- |
+| Administración global | `/admin` |
+| Panel tenant          | `/panel` |
+
+---
+
+# ☁ Despliegue recomendado
+
+## ✅ Railway
+
+Ideal para despliegues rápidos y gratuitos.
+
+## ✅ Render
+
+Muy sencillo para aplicaciones Laravel pequeñas y medianas.
+
+## ✅ Hostinger
+
+Opción económica para producción.
+
+## ✅ DigitalOcean App Platform
+
+Ideal para proyectos SaaS profesionales y escalables.
+
+---
+
+# 📁 Estructura recomendada
+
+```plaintext
+app/
+├── Http/
+│   ├── Controllers/
+│   ├── Middleware/
+│   └── Requests/
+├── Models/
+├── Services/
+├── Policies/
+└── Providers/
+```
+
+---
+
+# 🔧 Funcionalidades futuras sugeridas
+
+* Suscripciones con Stripe
+* Facturación electrónica
+* API REST
+* Dashboard estadístico
+* Exportación PDF/Excel
+* Notificaciones por correo
+* Soporte multi-idioma
+* Logs de actividad
+* Gestión avanzada de permisos
+
+---
+
+# 🚀 Flujo del sistema
+
+```text
+SuperAdmin
+   │
+   ├── Gestiona Tenants
+   ├── Gestiona Usuarios
+   └── Accede a /admin
+
+Tenant
+   │
+   ├── Usuarios
+   ├── Clientes
+   └── Facturas
+           │
+           └── Acceso a /panel
+```
+
+---
+
+# 🔐 Seguridad
+
+* Middleware de autenticación
+* Protección CSRF
+* Aislamiento multi-tenant
+* Validaciones de formularios
+* Logout seguro
+* Protección de rutas por roles
+
+---
+
+# 📄 Licencia
+
+Este proyecto está bajo la licencia MIT.
+
+---
+
+# 🤝 Contribuciones
+
+Las contribuciones, issues y pull requests son bienvenidos.
+
+1. Haz un Fork
+2. Crea una rama (`feature/nueva-funcionalidad`)
+3. Haz commit de tus cambios
+4. Haz push a la rama
+5. Abre un Pull Request
+
+---
+
+# ⭐ Soporte
+
+Si este proyecto te resulta útil:
+
+* Dale una estrella al repositorio ⭐
+* Comparte el proyecto
+* Contribuye con mejoras
+
+---
+
+# 👨‍💻 Autor
+
+Desarrollado por Yoangel Alayon Peguero con Laravel 13 y arquitectura SaaS Multi-Tenant.
+
+---
+
+# 📌 Repositorio
+
+```bash
+⭐ Star this repository
+```
