@@ -304,6 +304,7 @@
     <!-- PIE DE PÁGINA LEGALES -->
     <div class="footer">
         {{ $profile->razon_social ?? $tenant->nombre }} — NIF/CIF: {{ $profile->nif_cif ?? '' }} — Sistema de facturación automatizado.
+        <p class="text-center mt-4" style="font-size: 11px; color: #777;"> © 2024–2026 Yoangel-dev Software. Sistema de Facturación SaaS.</p>
     </div>
 
 </body>
