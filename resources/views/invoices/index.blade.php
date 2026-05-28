@@ -63,7 +63,7 @@
                 <tr>
                     <td>{{ $invoice->id }}</td>
 
-                    <td>{{ $invoice->client->nombre }}</td>
+                    <td>{{ $invoice->client?->nombre ?? 'Cliente Eliminado' }}</td>
 
                     {{-- Estado real de la factura --}}
                     <td>
