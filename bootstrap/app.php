@@ -11,6 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        
+        // 🔒 CONFIGURACIÓN REQUERIDA PARA RAILWAY: Confía en los proxies para activar HTTPS
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'admin'      => \App\Http\Middleware\AdminOnly::class,
             'superadmin' => \App\Http\Middleware\SuperAdmin::class,
@@ -22,3 +26,4 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+
