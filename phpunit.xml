@@ -24,12 +24,8 @@
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
-        <env name="DB_CONNECTION" value="mysql"/>
-        <env name="DB_HOST" value="zephyr.proxy.rlwy.net"/>
-        <env name="DB_PORT" value="46058"/>
-        <env name="DB_DATABASE" value="railway"/>
-        <env name="DB_USERNAME" value="root"/>
-        <env name="DB_PASSWORD" value="wfFDOPCCDjCMeLCqjgWEHThKycVhwBqn"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
