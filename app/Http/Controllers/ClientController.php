@@ -9,14 +9,14 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $clients = Client::where('tenant_id', auth()->user()->tenant_id)->get(); // luego filtraremos por tenant_id
+        // El GlobalScope de BelongsToTenant aísla automáticamente los clientes del tenant actual
+        $clients = Client::latest()->get();
         return view('clients.index', compact('clients'));
     }
 
     public function show($id)
     {
-        $client =Client::where('tenant_id', auth()->user()->tenant_id)->findOrFail($id);
-
+        $client = Client::with('invoices')->findOrFail($id);
         return view('clients.show', compact('client'));
     }
 
@@ -27,23 +27,32 @@ class ClientController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required',
+        $validated = $request->validate([
+            'nombre_razon_social'         => 'required|string|max:255',
+            'cif_nif'                     => 'nullable|string|max:20',
+            'email'                       => 'nullable|email|max:255',
+            'telefono'                    => 'nullable|string|max:30',
+            'direccion'                   => 'nullable|string|max:255',
+            'codigo_postal'               => 'nullable|string|max:10',
+            'ciudad'                      => 'nullable|string|max:100',
+            'provincia'                   => 'nullable|string|max:100',
+            'pais'                        => 'nullable|string|max:5',
+            'aplica_recargo_equivalencia' => 'nullable|boolean',
         ]);
 
-        Client::create([
-            'tenant_id' => auth()->user()->tenant_id, // temporal, luego será el usuario logueado
-            'nombre'    => $request->nombre,
-            'nif_cif'   => $request->nif_cif,
-            'email'     => $request->email,
-            'telefono'  => $request->telefono,
-            'direccion' => $request->direccion,
-            'pais'      => $request->pais,
-            'provincia' => $request->provincia,
-            'cp'        => $request->cp,
-        ]);
+        $validated['aplica_recargo_equivalencia'] = $request->boolean('aplica_recargo_equivalencia');
 
-        return redirect()->route('clients.index')->with('success', 'Cliente creado correctamente');
+        $client = Client::create($validated);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cliente creado correctamente.',
+                'client'  => $client,
+            ], 201);
+        }
+
+        return redirect()->route('clients.index')->with('success', 'Cliente creado correctamente.');
     }
 
     public function edit($id)
@@ -54,21 +63,39 @@ class ClientController extends Controller
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'nombre' => 'required',
+        $client = Client::findOrFail($id);
+
+        $validated = $request->validate([
+            'nombre_razon_social'         => 'required|string|max:255',
+            'cif_nif'                     => 'nullable|string|max:20',
+            'email'                       => 'nullable|email|max:255',
+            'telefono'                    => 'nullable|string|max:30',
+            'direccion'                   => 'nullable|string|max:255',
+            'codigo_postal'               => 'nullable|string|max:10',
+            'ciudad'                      => 'nullable|string|max:100',
+            'provincia'                   => 'nullable|string|max:100',
+            'pais'                        => 'nullable|string|max:5',
+            'aplica_recargo_equivalencia' => 'nullable|boolean',
         ]);
 
-        $client = Client::findOrFail($id);
-        $client->update($request->all());
+        $validated['aplica_recargo_equivalencia'] = $request->boolean('aplica_recargo_equivalencia');
 
-        return redirect()->route('clients.index')->with('success', 'Cliente actualizado');
+        $client->update($validated);
+
+        return redirect()->route('clients.index')->with('success', 'Cliente actualizado correctamente.');
     }
 
     public function destroy($id)
     {
         $client = Client::findOrFail($id);
+
+        // Prevenir borrado si tiene facturas asociadas para mantener trazabilidad contable
+        if ($client->invoices()->exists()) {
+            return redirect()->route('clients.index')->with('error', 'No se puede eliminar el cliente porque tiene facturas emitidas asociadas.');
+        }
+
         $client->delete();
 
-        return redirect()->route('clients.index')->with('success', 'Cliente eliminado');
+        return redirect()->route('clients.index')->with('success', 'Cliente eliminado correctamente.');
     }
 }

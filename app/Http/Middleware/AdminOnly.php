@@ -10,15 +10,13 @@ class AdminOnly
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  Closure(Request): (Response)  $next
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->is_admin) {
-            abort(403, 'Acceso restringido');
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Acceso restringido a administradores.');
         }
 
         return $next($request);
-        }
+    }
 }

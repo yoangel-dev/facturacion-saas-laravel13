@@ -1,16 +1,17 @@
 @component('mail::message')
-# Factura #{{ $invoice->id }}
+# Factura {{ $invoice->numero_completo }}
 
-Hola {{ $invoice->client->nombre }},
+Hola {{ $invoice->client_snapshot['nombre_razon_social'] ?? $invoice->client->nombre_razon_social }},
 
-Adjuntamos su factura correspondiente.
+Adjuntamos su factura correspondiente generada en formato PDF.
 
-**Total:** {{ number_format($invoice->total, 2) }} €  
+**Fecha de Emisión:** {{ \Carbon\Carbon::parse($invoice->fecha_emision)->format('d/m/Y') }}  
+**Base Imponible:** {{ number_format($invoice->base_imponible, 2) }} €  
+**Total a Pagar:** {{ number_format($invoice->total, 2) }} €  
 **Estado:** {{ ucfirst($invoice->estado) }}
 
-@component('mail::button', ['url' => url('/invoices/' . $invoice->id . '/pdf')])
-Descargar PDF
-@endcomponent
-
 Gracias por confiar en nosotros.
+
+Saludos cordiales,  
+**{{ $invoice->tenant->razon_social }}**
 @endcomponent

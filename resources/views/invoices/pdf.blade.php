@@ -2,27 +2,25 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Factura #{{ $invoice->id }}</title>
+    <title>Factura {{ $invoice->numero_completo }}</title>
     <style>
-        /* CONFIGURACIÓN GLOBAL */
+        /* CONFIGURACIÓN GLOBAL DOMPDF */
+        @page {
+            margin: 25px 30px 40px 30px;
+        }
         body {
             font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
             font-size: 11px;
-            line-height: 1.5;
+            line-height: 1.4;
             color: #2b2d42;
             margin: 0;
             padding: 0;
         }
-        .invoice-container {
-            padding: 30px 40px;
-        }
-
-        /* ESTRUCTURA DE TABLAS AUXILIARES */
         .table-layout {
             width: 100%;
             border-collapse: collapse;
             border: none;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         .table-layout td {
             border: none;
@@ -30,61 +28,72 @@
             vertical-align: top;
         }
 
-        /* LOGO Y CABECERA */
+        /* CABECERA */
         .brand-title {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: #1a365d;
             letter-spacing: -0.5px;
             text-transform: uppercase;
         }
         .company-details {
-            font-size: 11px;
-            color: #718096;
-            margin-top: 5px;
-            line-height: 1.4;
+            font-size: 10px;
+            color: #4a5568;
+            margin-top: 4px;
+            line-height: 1.35;
         }
         .meta-title {
-            font-size: 22px;
-            font-weight: 300;
-            color: #2b2d42;
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a365d;
             text-align: right;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
         .meta-details {
             text-align: right;
-            font-size: 11px;
-            margin-top: 5px;
+            font-size: 10px;
+            margin-top: 4px;
+            line-height: 1.35;
         }
         .meta-details strong {
             color: #1a365d;
         }
 
-        /* BLOQUES DE PARTICIPANTES (EMISOR / RECEPTOR) */
-        .party-header {
+        /* RECTIFICATIVA ALERT */
+        .rectificativa-box {
+            background-color: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 8px 12px;
+            margin-bottom: 15px;
             font-size: 10px;
+            color: #742a2a;
+        }
+
+        /* PARTICIPANTES */
+        .party-header {
+            font-size: 9px;
             font-weight: bold;
             text-transform: uppercase;
-            color: #a0aec0;
+            color: #718096;
             letter-spacing: 0.5px;
             border-bottom: 1px solid #e2e8f0;
-            padding-bottom: 3px;
-            margin-bottom: 8px;
+            padding-bottom: 2px;
+            margin-bottom: 6px;
         }
         .party-body {
-            font-size: 11px;
+            font-size: 10px;
             color: #2d3748;
-            line-height: 1.4;
+            line-height: 1.35;
         }
         .party-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             color: #1a365d;
             margin-bottom: 2px;
         }
 
-        /* TABLA PRINCIPAL DE CONCEPTOS */
+        /* TABLA DE CONCEPTOS */
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -95,14 +104,15 @@
             color: #ffffff;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: 9px;
             letter-spacing: 0.5px;
-            padding: 10px 12px;
+            padding: 7px 8px;
             text-align: left;
         }
         .items-table td {
-            padding: 10px 12px;
+            padding: 7px 8px;
             border-bottom: 1px solid #edf2f7;
+            font-size: 10px;
             color: #2d3748;
         }
         .text-right {
@@ -112,19 +122,14 @@
             text-align: center !important;
         }
 
-        /* TOTALES SECCIÓN */
-        .totals-wrapper {
-            margin-top: 20px;
-            width: 100%;
-        }
+        /* TOTALES */
         .totals-table {
-            width: 35%;
-            float: right;
+            width: 100%;
             border-collapse: collapse;
         }
         .totals-table td {
-            padding: 6px 8px;
-            font-size: 11px;
+            padding: 4px 6px;
+            font-size: 10px;
             color: #4a5568;
         }
         .totals-table .label {
@@ -134,177 +139,211 @@
         .totals-table .value {
             text-align: right;
             font-weight: 500;
+            width: 110px;
         }
         .totals-table .grand-total-row td {
-            padding-top: 10px;
-            border-top: 1px solid #e2e8f0;
+            padding-top: 8px;
+            border-top: 2px solid #1a365d;
         }
         .totals-table .grand-total-label {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #1a365d;
             text-align: right;
         }
         .totals-table .grand-total-value {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #1a365d;
             text-align: right;
         }
 
-        /* NOTAS Y PIE DE PÁGINA */
-        .notes-section {
-            margin-top: 40px;
-            width: 60%;
-            float: left;
-        }
+        /* NOTAS Y PIE */
         .notes-title {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             text-transform: uppercase;
             color: #718096;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .notes-body {
-            font-size: 10px;
+            font-size: 9px;
             color: #718096;
-            line-height: 1.4;
+            line-height: 1.35;
         }
         .footer {
             position: fixed;
-            bottom: 30px;
-            left: 40px;
-            right: 40px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
             text-align: center;
-            font-size: 9px;
+            font-size: 8px;
             color: #a0aec0;
             border-top: 1px solid #edf2f7;
-            padding-top: 8px;
+            padding-top: 6px;
         }
     </style>
 </head>
 <body>
 
-    <div class="invoice-container">
-
-        <!-- CABECERA PRINCIPAL -->
-        <table class="table-layout">
-            <tr>
-                <!-- DATOS DEL EMISOR (TU EMPRESA O TÚ COMO AUTÓNOMO) -->
-                <td>
-                    <div class="brand-title">{{ $tenant->nombre }}</div>
-                    <div class="company-details">
-                        Razón Social: {{ $profile->razon_social ?? $tenant->nombre }}<br>
-                        NIF/CIF: {{ $profile->nif_cif ?? '00000000X' }}<br>
-                        {{ $profile->direccion ?? 'Tu Dirección Comercial 123' }}<br>
-                        {{ $profile->pais ?? 'España' }}
-                    </div>
-                </td>
-                <!-- INFORMACIÓN DE LA FACTURA -->
-                <td style="width: 40%;">
-                    <div class="meta-title">Factura</div>
-                    <div class="meta-details">
-                        <strong>Número:</strong> #{{ $invoice->id }}<br>
-                        <strong>Fecha Emisión:</strong> {{ \Carbon\Carbon::parse($invoice->fecha_emision)->format('d/m/Y') }}<br>
-                        @if($invoice->fecha_vencimiento)
-                            <strong>Vencimiento:</strong> {{ \Carbon\Carbon::parse($invoice->fecha_vencimiento)->format('d/m/Y') }}<br>
-                        @endif
-                        <strong>Estado:</strong> {{ ucfirst($invoice->estado) }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-
-        <!-- INFORMACIÓN DEL CLIENTE (EMPRESA, AUTÓNOMO O PARTICULAR) -->
-        <table class="table-layout" style="margin-top: 10px;">
-            <tr>
-                <td style="width: 100%;">
-                    <div class="party-header">Facturado a</div>
-                    <div class="party-body">
-                        <div class="party-name">{{ $invoice->client->nombre }}</div>
-                        @if(!empty($invoice->client->nif_cif))
-                            <strong>NIF/CIF:</strong> {{ $invoice->client->nif_cif }}<br>
-                        @endif
-                        @if(!empty($invoice->client->direccion))
-                            <strong>Dirección:</strong> {{ $invoice->client->direccion }}<br>
-                        @endif
-                        <strong>Email:</strong> {{ $invoice->client->email }}
-                    </div>
-                </td>
-            </tr>
-        </table>
-
-        <!-- DETALLE DE CONCEPTOS -->
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th>Descripción / Concepto</th>
-                    <th class="text-center" style="width: 60px;">Cant.</th>
-                    <th class="text-right" style="width: 90px;">Precio U.</th>
-                    <th class="text-center" style="width: 60px;">IVA</th>
-                    @if($invoice->irpf_total > 0)
-                        <th class="text-center" style="width: 60px;">IRPF</th>
+    <!-- CABECERA PRINCIPAL: EMISOR Y METADATOS -->
+    <table class="table-layout">
+        <tr>
+            <!-- EMISOR -->
+            <td style="width: 55%;">
+                <div class="brand-title">{{ $tenant->nombre_comercial ?? $tenant->razon_social }}</div>
+                <div class="company-details">
+                    <strong>Razón Social:</strong> {{ $tenant->razon_social }}<br>
+                    <strong>NIF/CIF:</strong> {{ $tenant->cif_nif }}<br>
+                    @if($tenant->direccion)
+                        {{ $tenant->direccion }}<br>
                     @endif
-                    <th class="text-right" style="width: 100px;">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($invoice->items as $item)
-                    <tr>
-                        <td>{{ $item->descripcion }}</td>
-                        <td class="text-center">{{ $item->cantidad }}</td>
-                        <td class="text-right">{{ number_format($item->precio_unitario, 2) }} €</td>
-                        <td class="text-center">{{ $item->iva_porcentaje }}%</td>
-                        @if($invoice->irpf_total > 0)
-                            <td class="text-center">{{ $item->irpf_porcentaje }}%</td>
-                        @endif
-                        <td class="text-right">{{ number_format($item->importe_total, 2) }} €</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                    @if($tenant->codigo_postal || $tenant->ciudad)
+                        {{ $tenant->codigo_postal }} {{ $tenant->ciudad }} ({{ $tenant->provincia ?? 'España' }})<br>
+                    @endif
+                    @if($tenant->email)
+                        Email: {{ $tenant->email }} | 
+                    @endif
+                    @if($tenant->telefono)
+                        Tel: {{ $tenant->telefono }}
+                    @endif
+                </div>
+            </td>
+            <!-- METADATOS DE FACTURA -->
+            <td style="width: 45%;">
+                <div class="meta-title">
+                    {{ $invoice->is_rectificativa ? 'Factura Rectificativa' : 'Factura' }}
+                </div>
+                <div class="meta-details">
+                    <strong>Nº Factura:</strong> {{ $invoice->numero_completo }}<br>
+                    <strong>Fecha Emisión:</strong> {{ \Carbon\Carbon::parse($invoice->fecha_emision)->format('d/m/Y') }}<br>
+                    @if($invoice->fecha_vencimiento)
+                        <strong>Fecha Vencimiento:</strong> {{ \Carbon\Carbon::parse($invoice->fecha_vencimiento)->format('d/m/Y') }}<br>
+                    @endif
+                    <strong>Estado:</strong> {{ ucfirst($invoice->estado) }}
+                </div>
+            </td>
+        </tr>
+    </table>
 
-        <!-- TOTALES Y NOTAS -->
-        <div class="totals-wrapper">
+    <!-- AVISO DE FACTURA RECTIFICATIVA -->
+    @if($invoice->is_rectificativa)
+        <div class="rectificativa-box">
+            <strong>DOCUMENTO DE RECTIFICACIÓN / ABONO</strong><br>
+            Rectifica a la factura: <strong>{{ $invoice->facturaRectificada?->numero_completo ?? 'N/A' }}</strong><br>
+            Motivo de rectificación: {{ $invoice->motivo_rectificacion ?? 'Corrección fiscal de importes' }}
+        </div>
+    @endif
+
+    <!-- DATOS DEL CLIENTE / RECEPTOR -->
+    @php
+        $clientData = $invoice->client_snapshot ?? [
+            'nombre_razon_social' => $invoice->client->nombre_razon_social ?? 'Cliente',
+            'cif_nif'             => $invoice->client->cif_nif ?? '',
+            'direccion'           => $invoice->client->direccion ?? '',
+            'codigo_postal'       => $invoice->client->codigo_postal ?? '',
+            'ciudad'              => $invoice->client->ciudad ?? '',
+            'provincia'           => $invoice->client->provincia ?? '',
+            'pais'                => $invoice->client->pais ?? 'ES',
+        ];
+    @endphp
+    <table class="table-layout" style="margin-top: 5px;">
+        <tr>
+            <td style="width: 100%;">
+                <div class="party-header">Datos del Cliente / Facturado a</div>
+                <div class="party-body">
+                    <div class="party-name">{{ $clientData['nombre_razon_social'] }}</div>
+                    @if(!empty($clientData['cif_nif']))
+                        <strong>NIF/CIF:</strong> {{ $clientData['cif_nif'] }}<br>
+                    @endif
+                    @if(!empty($clientData['direccion']))
+                        <strong>Dirección:</strong> {{ $clientData['direccion'] }}<br>
+                    @endif
+                    @if(!empty($clientData['codigo_postal']) || !empty($clientData['ciudad']))
+                        {{ $clientData['codigo_postal'] }} {{ $clientData['ciudad'] }} ({{ $clientData['provincia'] ?? 'España' }})
+                    @endif
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- TABLA DE LÍNEAS / CONCEPTOS -->
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th>Descripción / Concepto</th>
+                <th class="text-center" style="width: 45px;">Cant.</th>
+                <th class="text-right" style="width: 75px;">Precio U.</th>
+                <th class="text-center" style="width: 45px;">IVA</th>
+                @if($invoice->importe_recargo_equivalencia > 0)
+                    <th class="text-center" style="width: 45px;">R.E.</th>
+                @endif
+                <th class="text-right" style="width: 85px;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($invoice->items as $item)
+                <tr>
+                    <td>{{ $item->concepto }}</td>
+                    <td class="text-center">{{ number_format($item->cantidad, 2) }}</td>
+                    <td class="text-right">{{ number_format($item->precio_unitario, 2) }} €</td>
+                    <td class="text-center">{{ number_format($item->iva_porcentaje, 0) }}%</td>
+                    @if($invoice->importe_recargo_equivalencia > 0)
+                        <td class="text-center">{{ number_format($item->recargo_porcentaje, 1) }}%</td>
+                    @endif
+                    <td class="text-right">{{ number_format($item->importe_total, 2) }} €</td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <!-- TOTALES Y NOTAS CON TABLA DE 2 COLUMNAS (COMPATIBILIDAD DOMPDF SIN FLOATS) -->
+    <table class="table-layout" style="margin-top: 20px;">
+        <tr>
             <!-- NOTAS Y TÉRMINOS -->
-            <div class="notes-section">
+            <td style="width: 55%; padding-right: 20px;">
                 @if($invoice->notas)
-                    <div class="notes-title">Notas adicionales</div>
+                    <div class="notes-title">Notas y Condiciones de Pago</div>
                     <div class="notes-body">
-                        {{ $invoice->notas }}
+                        {!! nl2br(e($invoice->notas)) !!}
                     </div>
                 @endif
-            </div>
-
-            <!-- DESGLOSE DE TOTALES -->
-            <table class="totals-table">
-                <tr>
-                    <td class="label">Subtotal:</td>
-                    <td class="value">{{ number_format($invoice->subtotal, 2) }} €</td>
-                </tr>
-                <tr>
-                    <td class="label">IVA Total:</td>
-                    <td class="value">{{ number_format($invoice->iva_total, 2) }} €</td>
-                </tr>
-                @if($invoice->irpf_total > 0)
+            </td>
+            <!-- DESGLOSE FISCAL DE TOTALES -->
+            <td style="width: 45%;">
+                <table class="totals-table">
                     <tr>
-                        <td class="label">Retención IRPF:</td>
-                        <td class="value" style="color: #c53030;">-{{ number_format($invoice->irpf_total, 2) }} €</td>
+                        <td class="label">Base Imponible:</td>
+                        <td class="value">{{ number_format($invoice->base_imponible, 2) }} €</td>
                     </tr>
-                @endif
-                <tr class="grand-total-row">
-                    <td class="grand-total-label">Total:</td>
-                    <td class="grand-total-value">{{ number_format($invoice->total, 2) }} €</td>
-                </tr>
-            </table>
-        </div>
+                    <tr>
+                        <td class="label">IVA:</td>
+                        <td class="value">{{ number_format($invoice->importe_iva, 2) }} €</td>
+                    </tr>
+                    @if($invoice->importe_recargo_equivalencia > 0)
+                        <tr>
+                            <td class="label">Recargo Equivalencia:</td>
+                            <td class="value">{{ number_format($invoice->importe_recargo_equivalencia, 2) }} €</td>
+                        </tr>
+                    @endif
+                    @if($invoice->importe_irpf > 0)
+                        <tr>
+                            <td class="label">Retención IRPF:</td>
+                            <td class="value" style="color: #c53030;">-{{ number_format($invoice->importe_irpf, 2) }} €</td>
+                        </tr>
+                    @endif
+                    <tr class="grand-total-row">
+                        <td class="grand-total-label">TOTAL FACTURA:</td>
+                        <td class="grand-total-value">{{ number_format($invoice->total, 2) }} €</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
-    </div>
-
-    <!-- PIE DE PÁGINA LEGALES -->
+    <!-- PIE DE PÁGINA LEGAL -->
     <div class="footer">
-        {{ $profile->razon_social ?? $tenant->nombre }} — NIF/CIF: {{ $profile->nif_cif ?? '' }} — Sistema de facturación automatizado.
-        <p class="text-center mt-4" style="font-size: 11px; color: #777;"> © 2024–2026 Yoangel-dev Software. Sistema de Facturación SaaS.</p>
+        {{ $tenant->razon_social }} — NIF/CIF: {{ $tenant->cif_nif }} — Documento fiscal generado electrónicamente.
     </div>
 
 </body>

@@ -13,16 +13,20 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('tenant_id'); // más adelante lo usaremos
-            $table->string('nombre');
-            $table->string('nif_cif')->nullable();
+            $table->foreignId('tenant_id')->constrained('tenants')->onDelete('cascade');
+            $table->string('nombre_razon_social');
+            $table->string('cif_nif')->nullable();
             $table->string('email')->nullable();
             $table->string('telefono')->nullable();
             $table->string('direccion')->nullable();
-            $table->string('pais')->nullable();
+            $table->string('codigo_postal', 10)->nullable();
+            $table->string('ciudad')->nullable();
             $table->string('provincia')->nullable();
-            $table->string('cp')->nullable();
+            $table->string('pais', 5)->default('ES');
+            $table->boolean('aplica_recargo_equivalencia')->default(false);
             $table->timestamps();
+
+            $table->index(['tenant_id', 'nombre_razon_social']);
         });
     }
 

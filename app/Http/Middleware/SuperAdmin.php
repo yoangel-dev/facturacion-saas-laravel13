@@ -10,13 +10,11 @@ class SuperAdmin
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->is_superadmin) {
-            abort(403, 'Acceso denegado');
+        if (!auth()->check() || !auth()->user()->isSuperAdmin()) {
+            abort(403, 'Acceso restringido a superadministradores.');
         }
 
         return $next($request);
